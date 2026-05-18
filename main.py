@@ -5,7 +5,6 @@ from langchain_core.prompts import ChatPromptTemplate
 import os
 from dotenv import load_dotenv
 
-# Load local env (for local run only)
 load_dotenv()
 
 # Page config
@@ -14,16 +13,19 @@ st.set_page_config(
     page_icon="🚀"
 )
 
-# Title
 st.title("🚀 Simple LangChain Chatbot With Groq")
-st.markdown("Learn LangChain basics with Groq's ultra-fast inference")
-
-# Get API key (Streamlit Cloud + Local support)
-api_key = os.getenv("GROQ_API_KEY")
+st.markdown("Learn LangChain basics with Groq")
 
 # Sidebar
 with st.sidebar:
     st.header("Settings")
+
+    # API KEY INPUT (local use)
+    api_key_input = st.text_input(
+        "Groq API Key (optional if using Streamlit Secrets)",
+        type="password",
+        help="Get free API key at console.groq.com"
+    )
 
     model_name = st.selectbox(
         "Model",
@@ -35,16 +37,19 @@ with st.sidebar:
         index=0
     )
 
+# Use API key (Secrets first, then input)
+api_key = os.getenv("GROQ_API_KEY") or api_key_input
+
 # Clear chat
 if st.button("Clear Chat"):
     st.session_state.messages = []
     st.rerun()
 
-# Initialize chat history
+# Init chat history
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Initialize LLM chain
+# LLM chain
 @st.cache_resource
 def get_chain(api_key, model_name):
 
@@ -63,26 +68,24 @@ def get_chain(api_key, model_name):
         ("user", "{question}")
     ])
 
-    chain = prompt | llm | StrOutputParser()
-
-    return chain
+    return prompt | llm | StrOutputParser()
 
 chain = get_chain(api_key, model_name)
 
-# If API key missing
+# API missing warning
 if not api_key:
-    st.warning("⚠️ Please add your GROQ_API_KEY in Streamlit Secrets or .env file")
+    st.warning("⚠️ Please enter API key or add it in Streamlit Secrets")
     st.stop()
 
-# Chat UI
+# Chat history display
 for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.write(message["content"])
 
-# User input
+# Chat input
 if question := st.chat_input("Ask me anything"):
 
-    # User message
+    # user message
     st.session_state.messages.append({
         "role": "user",
         "content": question
@@ -91,7 +94,7 @@ if question := st.chat_input("Ask me anything"):
     with st.chat_message("user"):
         st.write(question)
 
-    # AI response
+    # assistant response
     with st.chat_message("assistant"):
         placeholder = st.empty()
         full_response = ""
@@ -109,22 +112,22 @@ if question := st.chat_input("Ask me anything"):
             })
 
         except Exception as e:
-            st.error(f"Error: {str(e)}")
+            st.error(str(e))
 
-
-
-##examples
+# Examples section (RESTORED)
 st.markdown("---")
 st.markdown("### 💡 Try these Examples:")
-col1,col2=st.columns(2)
+
+col1, col2 = st.columns(2)
+
 with col1:
-    st.markdown("- What is Langchain?")
-    st.markdown("- Explain Groq's Lpu technology")
+    st.markdown("- What is LangChain?")
+    st.markdown("- Explain Groq technology")
 
 with col2:
-    st.markdown("- How do i Learn Programming?")
-    st.markdown("- Write a haiku about Ai")
+    st.markdown("- How do I learn programming?")
+    st.markdown("- Write a haiku about AI")
 
-#Footer
+# Footer
 st.markdown("---")
-st.markdown("Built with Langchain & Groq | Experience the speed! ")
+st.markdown("Built with LangChain + Groq 🚀")
