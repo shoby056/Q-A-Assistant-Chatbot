@@ -22,7 +22,7 @@ with st.sidebar:
 
     # API KEY INPUT (local use)
     api_key_input = st.text_input(
-        "Groq API Key (optional if using Streamlit Secrets)",
+        "Groq API Key ",
         type="password",
         help="Get free API key at console.groq.com"
     )
@@ -74,13 +74,16 @@ chain = get_chain(api_key, model_name)
 
 # API missing warning
 if not api_key:
-    st.warning("⚠️ Please enter API key or add it in Streamlit Secrets")
-    st.stop()
+    st.warning("⚠️ Please enter your Groq Api key in the sidebar to start chatting")
+    st.markdown("[Get your free Api key here](https://console.groq.com/home)")
 
-# Chat history display
-for message in st.session_state.messages:
-    with st.chat_message(message["role"]):
-        st.write(message["content"])
+else:
+# Display the chat message
+    for message in st.session_state.messages:
+        with st.chat_message(message["role"]):
+            st.write(message["content"])
+
+
 
 # Chat input
 if question := st.chat_input("Ask me anything"):
